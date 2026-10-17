@@ -3,12 +3,18 @@
 
 #include "types.h"
 
+//CONSTANTS
+#define GRID_WIDTH  10
+#define GRID_HEIGHT 10
+
+
 //TILES
 #define T_VOID 0
 #define T_NORMAL 1
 #define T_GOAL 2
 #define T_SLIP 3
 #define T_SAFE 4
+#define T_FIRE 5
 
 //WALL FLAGS
 /* A Note on my walls

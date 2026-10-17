@@ -8,6 +8,6 @@ typedef unsigned long  UINT32;
 typedef enum {
     FALSE = 0,
     TRUE = 1
-} BOOL
+} BOOL;
  
 #endif
