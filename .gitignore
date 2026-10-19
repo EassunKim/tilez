@@ -1,3 +1,7 @@
 checkpoint/
 notes.txt
 comment-format.c
+*.o
+*.O
+*.tos
+MAKEFILE
