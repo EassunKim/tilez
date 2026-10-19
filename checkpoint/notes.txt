@@ -1,0 +1,140 @@
+# Tilez — COMP 2659 (Mount Royal University, Fall 2026)
+
+Atari ST game in C (monochrome, 640x400). Team: Matthew Kim (Matt), Ujjwal Bhandari.
+Matt owns the **model**; Ujjwal is on the raster library (done, in a separate branch).
+README also lists Mohamad Hamade — confirm whether that's correct.
+
+## Working style
+- Matt wants to understand and write most of the code himself.
+- Explain the design/reasoning first; only show full code when he asks for it.
+- Review his drafts and point out errors and misunderstandings directly.
+- Fixes go one at a time. On "next"/"check", re-read the files on disk and verify all
+  earlier fixes before presenting the next one.
+- Comment typos/formatting are deferred to one comment pass at the end (see below).
+
+## Current deadline: Checkpoint 2 — Monday Oct 19, 2026, 11:59pm
+Deliverables:
+- Model: one module per object, `model.h/.c`, event modules `asynch.h/.c`,
+  `synch.h/.c`, `cond.h/.c` (using the provided `events.h`), model test driver
+  that printf's every property after setup and after each event call.
+- Raster: `raster.h`, `raster.c`, `rast_asm.s` (Ujjwal). Game-independent, no OS
+  or stdlib calls, base-pointer param. Full marks need clipping, no mul/div/mod,
+  and all-assembly.
+- Renderer: `render_<object>(const Object *, UINT8 *base)` per object (object only,
+  never the whole model) + master `render(const Model *, UINT8 *base)`. Test driver =
+  model tests with render calls, wait for key, clear screen.
+- All: functions <= ~25-30 lines, header comment per function (purpose, params,
+  returns, assumptions), file header with team names + author, no variable/array
+  definitions in .h files, a test module per module covering edge cases.
+
+## Platform constraints
+- C89 (no designated initializers, declare variables at top of block, `/* */` comments
+  only — no `//`).
+- `int` is 16 bits; `long` is 32. Use `types.h` (UINT8/16/32, INT8/16/32, BOOL).
+  No course skeleton available (I: drive down, document is old) — our types.h is final.
+- `BOOL` is `typedef UINT8`; store only 0/1 in it, test with `if (b)` not `== TRUE`.
+- Integers only — no floats in the model.
+- TOS 8.3 file names: <= 8 chars + 3-char extension (e.g. `tst_modl.c`).
+- Keep all files in one flat folder unless the skeleton makefile is changed.
+
+## Game rules (as decided)
+- Single player. (Two-player — same level in sequence, fewest moves wins — is a
+  STRETCH GOAL for later this term, not part of the current spec. This is a change
+  from the submitted Checkpoint 1 spec.)
+- Grid of tiles surrounded by void. Player moves/rotates; ally mirrors every input.
+- If the player is blocked, the ally still moves if it can (the desync mechanic).
+- Win: ally reaches the goal tile (`T_GOAL`, 'G'). Player on the goal does nothing.
+- Fire tile (either character): reset to spawns; move counter is NOT reset.
+- Slip tile: the character on it moves one extra cell if free; otherwise stays on it.
+  Chained slips: not yet decided.
+- Player and ally cannot share a tile; they block each other. Player resolves first,
+  then the ally using the player's new position.
+- Move counter: one counter. Forward moves only, and only if at least one character
+  moved. Rotations don't count.
+- Spawn positions and facings are per level (spec text said "center, facing each
+  other" — this is a deliberate change).
+- Controls: W forward, A left, D right, S turn around.
+
+## Model design decisions
+- Positions are grid cells, grid indexed `[y][x]` (row first, row 0 = top), same
+  order as level row strings. Renderer converts: cell * 32 px.
+- Tiles are 32x32 px; grid up to 10x10 (320x320 px). `GRID_WIDTH`/`GRID_HEIGHT` live
+  in tile.h.
+- Directions: `#define NORTH 0, EAST 1, SOUTH 2, WEST 3` (clockwise) in player.h.
+  Rotate right +1, left +3, around +2, wrapped with `% 4` (mod is fine in the model;
+  the no-mul/div rule is raster only).
+- Player and ally share the `Player` type (x, y, facing all UINT8).
+- `player_forward_cell` outputs INT16 so off-grid north/west gives -1, not 255.
+- Normal/Fire/Slip/Goal/Void are one Tile object with a `type` field. Values are
+  contiguous so the renderer can index a bitmap array by type:
+  `T_VOID 0, T_NORMAL 1, T_GOAL 2, T_SLIP 3, T_FIRE 4`. (`T_SAFE` was removed.)
+- Walls are bit flags on tiles: bit = `1 << direction`
+  (`WALL_NORTH 0x01, EAST 0x02, SOUTH 0x04, WEST 0x08`). A wall only needs to be set
+  on one of the two tiles; the move check tests both sides. `tile_add_wall` and
+  `tile_check_walls` take a DIRECTION, never a WALL_* mask.
+- Tile types are `#define`s, not an enum (enum would be 16 bits here).
+- Levels are written as row strings (`.` normal, `F` fire, `S` slip, `G` goal,
+  space = void; short rows are void past the end) plus a separate wall list
+  (`wallInfo {x, y, side}`, side = direction). `Level` holds `const char *rows[]`,
+  `const wallInfo *walls`, `wall_count`, player/ally spawns. `levels.c` owns the
+  format; model only calls `level_get` and `level_build_grid`.
+- Walls are applied after rows are built (tile_init zeroes walls).
+
+## Fix walkthrough progress (Oct 18)
+1. types.h — DONE. INT8/16/32 added, BOOL = typedef UINT8 + TRUE/FALSE defines.
+2. player.h/.c — DONE. Prototypes added, player_turn_around added,
+   player_forward_cell outputs INT16*.
+   DELIBERATELY SKIPPED: `const Player*` on player_forward_cell — Matt wants to see
+   the const-discard warning in a full build. Point it out at first full build.
+3. tile.h/.c — DONE. Prototypes added, T_SAFE removed (T_GOAL kept), contiguous
+   values, stale comments fixed. Same `const` skip applies to tile_check_walls /
+   tile_is_valid (render_tile will pass a const Tile*).
+4. levels.h data — DONE. side field holds a direction, wall_count added, const walls
+   and rows, ally spawn moved off the goal to (7,5), wall (3,5)-EAST guards the goal.
+   Optional leftover: `const UINT8 wall_count` member — recommended removing.
+5. levels.c functions — DONE. level_get (returns &levels[i], NULL if i >= LEVELS),
+   level_build_grid (param named `lvl`) with static helpers build_row (short-row
+   guard `!at_end &&`) and apply_walls. Prototypes in levels.h.
+   DECISION: no bounds check on wall coordinates — we write every level ourselves.
+   Comment pass: add "all walls must be inside the grid" to apply_walls' header.
+6. model.h — IN PROGRESS. Duplicate GRID_* defines and `//` comments already removed.
+   Still to do: include tile.h, write the Model struct, add prototypes.
+7. model.c — after that.
+
+## Model plan
+- Model struct: `Tile grid[GRID_HEIGHT][GRID_WIDTH]`, player, ally, player/ally spawns,
+  one move counter, level_complete, current level index. (No current_player / per-player
+  counters — multiplayer is a stretch goal.)
+- model.c functions:
+  - static: in-bounds check; try-step-forward (returns whether it moved).
+  - `model_load_level`: level_get (stop on NULL), build grid, copy spawns, zero
+    counter, clear level_complete, store level index, reset positions.
+  - `model_reset_level`: copy spawns into player/ally; leave counter.
+  - `model_tile_at(x, y)`: T_VOID off-grid, else the cell's type.
+  - `model_can_enter(model, mover, other)`: blocked by void, wall on mover's facing
+    side, wall on next tile's opposite side, or the other character on that cell.
+  - `model_move_forward`: player then ally; increment counter if either moved.
+  - rotate left/right/around: both characters, no count.
+  - `model_slip(model, who, other)`: one more step if possible.
+- `asynch.c`, `synch.c` (likely near empty), `cond.c` (slip, fire, goal checks after a
+  move; cond sets level_complete) — after model.c.
+- Model test driver — after that. Then renderer. If short on time, keep the renderer
+  minimal rather than cutting model tests.
+
+## Deferred cleanup (comment pass, later Oct 18)
+- Convert all `//` comments to `/* */` (player.c, tile.h, levels.c, model.h, ...).
+- Comment typos ("Declartions", "Declaroins", "purpose rotates", `tile\*/`,
+  check_walls header name, etc.), stray `v` lines in headers, empty INPUT sections.
+- File header with team names + author in every file.
+- types.h: no newline after final `#endif` (enable files.insertFinalNewline).
+- apply_walls header: note the no-bounds-check assumption.
+
+## Project layout
+- Keep all source flat in the root (course makefile, TOS 8.3 paths, marker
+  expectations). Group with name prefixes instead of folders (tst_*.c for tests).
+  Docs stay in checkpoint/. Add *.o / *.tos / *.prg to .gitignore with the makefile.
+
+## Open questions
+- Chained slip tiles / slip onto fire ordering in cond.c.
+- Is the "ally directly in front, both facing same way, player blocked" desync intended?
+- Whether to keep the S (turn around) key — it's in the submitted spec.
