@@ -64,3 +64,79 @@ static void draw_line(UINT8 *base, long r0, long c0, long r1, long c1)
     }
 }
 
+
+static int bitmap_visible(int row, int col, UINT16 height, int width)
+{
+    if (col <= -width || col >= 640 || 
+        row >= 400 || (long)row + height <=0) {
+        return 0;
+    }
+    return 1;
+}
+
+static void clip_rows(int row, UINT16 height,
+                      int *startRow, int *endRow)
+{
+    *startRow = 0;
+    *endRow = height;
+
+    if (row < 0){
+        /*Start row begins at first positive row of the bitmap*/
+        *startRow = -row; 
+    }
+    /*Check if any rows below the bottom edge*/
+    if ((long)row + height > 400){
+        /*End row ends at the last row of the bitmap still on screen*/
+        *endRow = 400 - row;
+    }
+}
+
+void plot_8bit_bitmap(UINT8 *base, int row, int col,
+                      const UINT8 *bitmap, UINT16 height)
+{
+    int i, startingBit, startRow, endRow;
+    long offset;
+    UINT8 bits;
+
+    if (!bitmap_visible(row, col, height, 8)){
+        return; 
+    }
+
+    clip_rows(row, height, &startRow, &endRow);
+    /*Assume rows begin left of screen*/
+    /*offset calculation, adding startRow forces visible portion of 
+    row to begin at 0, startRow/endRow remain consistent,
+    so loop only on eligible rows */
+    offset = (((long)row + startRow) << 6) +
+         (((long)row + startRow) << 4); 
+    
+    /*At the left of screen, first visible bit map bit placed
+    at the first bit*/
+    startingBit = 0;
+
+    if (col >= 0) /*Not left of screen*/
+    {/*Calculate offset regularly, >> 3, row may not begin at 0*/
+        offset += ((long)col >> 3); 
+        startingBit = col & 7; /*col % 8 - Q11*/
+    }
+
+    /*Loop through visible rows, if no clipping then 0-8 */
+    for (i = startRow; i < endRow; i++) {
+
+        bits = bitmap[i];
+        /*Handles left edge */
+        if (col < 0){
+            /*Shift left to first visible portion of 8bit value
+            111|10000 = 1000000*/
+            bits = (UINT8)(bits << (-col));
+        }
+        *(base + offset ) |= bits >> startingBit;
+        /*Checks if there is another byte available on the row*/
+        if (startingBit !=0 && (col >> 3) < 79){
+            *(base + offset  + 1) |= bits << (8 - startingBit);
+        }
+        offset += 80;
+    }
+}
+
+
