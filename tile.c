@@ -18,7 +18,7 @@ void tile_init(Tile* tile, UINT8 type, UINT8 walls) {
 v
  PURPOSE: Checks if a wall is present in a certain direction of a tile. will be used for both player movement and rendering
 
- INPUT: side - a direction (0-4)
+ INPUT: side - a direction (0-3)
 
  OUTPUT: TRUE if a wall is present, FALSE if not
 
@@ -31,7 +31,7 @@ BOOL tile_check_walls(Tile* tile, UINT8 side) {
 v
  PURPOSE: add a wall on a certain side of a tile
 
- INPUT: side - a direction (0-4)
+ INPUT: side - a direction (0-3)
 
  OUTPUT: None
 

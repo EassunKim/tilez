@@ -23,6 +23,13 @@ void player_rotate_right(Player* player) {
     player->facing = (player->facing + 1) % 4;
 }
 
+/* player_turn_around
+* purpose rotates the player 180 degree
+*/
+void player_turn_around(Player* player) {
+    player->facing = (player->facing + 2) % 4;
+}
+
 //PLAYER MOVEMENT
 
 /* player_forward_cell
@@ -30,7 +37,7 @@ void player_rotate_right(Player* player) {
 *
 * next_x and y are meant to be pointers to return the two values on the atari st
 */
-void player_forward_cell(Player* player, UINT8* next_x, UINT8* next_y) {
+void player_forward_cell(Player* player, INT16* next_x, INT16* next_y) {
     int x_directs[4] = {0,1,0,-1}; // the value that next_x should be incremented by based on facing value of player
     int y_directs[4] = {-1,0,1,0}; // same as above but for next_y
 

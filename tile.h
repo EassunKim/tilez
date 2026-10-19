@@ -3,18 +3,12 @@
 
 #include "types.h"
 
-//CONSTANTS
-#define GRID_WIDTH  10
-#define GRID_HEIGHT 10
-
-
 //TILES
 #define T_VOID 0
 #define T_NORMAL 1
 #define T_GOAL 2
 #define T_SLIP 3
-#define T_SAFE 4
-#define T_FIRE 5
+#define T_FIRE 4
 
 //WALL FLAGS
 /* A Note on my walls
@@ -28,8 +22,16 @@
 #define WALL_WEST  0x08
 
 typedef struct {
-    UINT8 type; //a value to denote the type of tile, values in model.h
-    UINT8 walls; // a bitmask of flags that denote what walls are around a tile, values also in model.h
+    UINT8 type; /*a value to denote the type of tile*/
+    UINT8 walls; /* a bitmask of flags that denote what walls are around a tile\*/
 } Tile;
+
+/*Declaroins*/
+BOOL tile_is_valid(Tile* tile);
+void tile_add_wall(Tile* tile, UINT8 side);
+BOOL tile_check_walls(Tile* tile, UINT8 side);
+void tile_init(Tile* tile, UINT8 type, UINT8 walls);
+
+
 
 #endif

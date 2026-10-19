@@ -21,5 +21,12 @@ typedef struct {
     UINT8 facing;
 } Player;
 
+/* Declartions for .c*/
+void player_set_position(Player* player, UINT8 x, UINT8 y);
+void player_forward_cell(Player* player, INT16* next_x, INT16* next_y);
+void player_rotate_right(Player* player);
+void player_rotate_left(Player* player);
+void player_turn_around(Player* player);
+void player_init(Player* player, UINT8 x, UINT8 y, UINT8 facing);
 
 #endif
