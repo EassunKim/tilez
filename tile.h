@@ -10,7 +10,7 @@
 #define T_SLIP 3
 #define T_FIRE 4
 
-//WALL FLAGS
+//WALL DIRECTIONS
 /* A Note on my walls
 *  I chose to use a bitmask for walls.
 *  This gives us an easy flag for each wall, the ability to check which walls are present (0x03 would be north and east)

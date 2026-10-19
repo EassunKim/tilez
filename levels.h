@@ -34,6 +34,8 @@ typedef struct {
 static UINT8 char_to_tile_type(char c);
 const Level *level_get(UINT8 index);
 void level_build_grid(const Level *level, Tile grid[GRID_HEIGHT][GRID_WIDTH]);
+static void build_row(const char *row, Tile row_tiles[GRID_WIDTH]);
+
 
 
 
