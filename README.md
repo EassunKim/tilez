@@ -36,5 +36,6 @@ Model, raster graphics library, and renderer.
 | `synch.h` / `synch.c` | |
 | `cond.h` / `cond.c` | |
 | `tst_modl.c` | |
+| `tst_rast.c` | |
 | `MAKEFILE` | |
 
