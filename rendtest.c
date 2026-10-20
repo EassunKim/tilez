@@ -162,39 +162,41 @@ int main(void)
         printf("FAIL board\n");
     }
 
+    /* Player position for remaining tests */
+    player.x = 3;
+    player.y = 4;
+
+    /* Bitmap starts at row 180, column 268 */
+
     /* TEST 8: Player facing North */
+    reset_screen();
+
+    player.facing = NORTH;
+    render_player(&player, base);
+
+    if (is_set(180, 270) &&
+        is_set(183, 270) &&
+        !is_set(183, 271) &&
+        is_set(183, 273))
+    {
+        printf("PASS player north\n");
+    }
+    else
+    {
+        printf("FAIL player north\n");
+    }
+
+    /* TEST 9: Player facing East */
 reset_screen();
 
-player.x = 3;
-player.y = 4;
-player.facing = NORTH;
-
-render_player(&player, base);
-
-if (is_set(176, 264) &&
-    is_set(191, 279) &&
-    is_set(172, 272))
-{
-    printf("PASS player north\n");
-}
-else
-{
-    printf("FAIL player north\n");
-}
-
-
-/* TEST 9: Player facing East */
-reset_screen();
-
-player.x = 3;
-player.y = 4;
 player.facing = EAST;
 
 render_player(&player, base);
 
-if (is_set(184, 279) &&
-    is_set(184, 283) &&
-    !is_set(172, 272))
+if (is_set(180, 270) &&
+    !is_set(183, 270) &&
+    is_set(183, 271) &&
+    is_set(183, 273))
 {
     printf("PASS player east\n");
 }
@@ -203,48 +205,42 @@ else
     printf("FAIL player east\n");
 }
 
+    /* TEST 10: Player facing South */
+    reset_screen();
 
+    player.facing = SOUTH;
+    render_player(&player, base);
 
-/* TEST 10: Player facing South */
-reset_screen();
+    if (is_set(180, 270) &&
+    is_set(183, 270) &&
+    is_set(183, 271) &&
+    is_set(183, 273))
 
-player.x = 3;
-player.y = 4;
-player.facing = SOUTH;
+    {
+        printf("PASS player south\n");
+    }
+    else
+    {
+        printf("FAIL player south\n");
+    }
 
-render_player(&player, base);
+    /* TEST 11: Player facing West */
+    reset_screen();
 
-if (is_set(191, 272) &&
-    is_set(195, 272) &&
-    !is_set(172, 272))
-{
-    printf("PASS player south\n");
-}
-else
-{
-    printf("FAIL player south\n");
-}
+    player.facing = WEST;
+    render_player(&player, base);
 
-/* TEST 11: Player facing West */
-reset_screen();
-
-player.x = 3;
-player.y = 4;
-player.facing = WEST;
-
-render_player(&player, base);
-
-if (is_set(184, 260) &&
-    is_set(184, 264) &&
-    !is_set(184, 283))
-{
-    printf("PASS player west\n");
-}
-else
-{
-    printf("FAIL player west\n");
-}
-
+    if (is_set(180, 270) &&
+    is_set(183, 270) &&
+    is_set(183, 271) &&
+    !is_set(183, 273))
+    {
+        printf("PASS player west\n");
+    }
+    else
+    {
+        printf("FAIL player west\n");
+    }
 
     return 0;
 }
