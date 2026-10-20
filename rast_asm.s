@@ -1,25 +1,68 @@
+;------------------------------------------------------------
+; File: rast_asm.s
+;
+; PURPOSE: Implements raster graphics routines in Motorola
+;          68000 assembly for the Atari ST 640x400
+;          monochrome display.
+;
+; Team Members: Mohamad, Ujjwal, Matthew
+; Author: Mohamad
+;
+; The screen contains 80 bytes per row and 32000 bytes
+; in total. Coordinates are specified as (row, column).
+;------------------------------------------------------------
+
 
         xdef    _clear_screen
 
 base    equ     8
 
+;----- Function: clear_screen -----
+;
+; PURPOSE: Clears the entire monochrome screen.
+;
+; INPUT: base - address of the screen buffer.
+;
+; OUTPUT: None.
+;
+; ASSUMPTIONS: The screen buffer contains 32000 bytes.
+;              The base address is valid.
+;------------------------------------------------------------
+
 _clear_screen:
         link    a6,#0
-        movem.l d0-1/a0,-(sp)
+       movem.l d0-d1/a0,-(sp)
         movea.l base(a6),a0
         move.w  #7999,d0
         clr.l   d1
 
+; Clear 8000 longwords, or 32000 bytes.
 fill_loop:
         move.l  d1,(a0)+
         dbra    d0,fill_loop
 
-        movem.l (sp)+,d0-1/a0
+        movem.l (sp)+,d0-d1/a0
         unlk    a6
         rts
 
-        
+
         xdef    _clear_region
+
+;----- Function: clear_region -----
+;
+; PURPOSE: Clears a rectangular region of the screen.
+;
+; INPUT: base - address of the screen buffer.
+;        row - starting vertical coordinate.
+;        col - starting horizontal coordinate.
+;        length - number of rows to clear.
+;        width - number of columns to clear.
+;
+; OUTPUT: None.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              Coordinates are clipped to the screen.
+;------------------------------------------------------------
 
 _clear_region:
         link    a6,#0
@@ -43,6 +86,7 @@ _clear_region:
         add.l   d0,d2
         add.l   d1,d3
 
+; Clip the starting and ending coordinates.
         tst.l   d0
         bge     cr_rpos
         moveq   #0,d0
@@ -64,6 +108,7 @@ cr_cend:
         cmp.l   d3,d1
         bge     cr_done
 
+; Calculate the screen address of the first row.
         movea.l 8(a6),a1
         move.l  d0,d6
         lsl.l   #6,d6
@@ -83,6 +128,7 @@ cr_col:
         movea.l a1,a2
         adda.l  d6,a2
 
+; Clear the selected bit in the screen byte.
         move.l  d5,d7
         eori.w  #7,d7
         andi.w  #7,d7
@@ -102,8 +148,22 @@ cr_done:
         unlk    a6
         rts
 
-        
+
         xdef    _plot_pixel
+
+;----- Function: plot_pixel -----
+;
+; PURPOSE: Draws a single pixel on the screen.
+;
+; INPUT: base - address of the screen buffer.
+;        row - vertical pixel coordinate.
+;        col - horizontal pixel coordinate.
+;
+; OUTPUT: None.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              Pixels outside the screen are ignored.
+;------------------------------------------------------------
 
 _plot_pixel:
         link    a6,#0
@@ -114,6 +174,7 @@ _plot_pixel:
         move.w  14(a6),d1
         ext.l   d1
 
+; Check the screen boundaries.
         tst.l   d0
         bmi     pp_done
         cmpi.l  #400,d0
@@ -126,6 +187,7 @@ _plot_pixel:
 
         movea.l 8(a6),a0
 
+; Calculate byte offset using row * 80 + col / 8.
         move.l  d0,d2
         lsl.l   #6,d2
         move.l  d0,d3
@@ -137,6 +199,7 @@ _plot_pixel:
         add.l   d3,d2
         adda.l  d2,a0
 
+; Set the required pixel bit.
         eori.w  #7,d1
         andi.w  #7,d1
         bset    d1,(a0)
@@ -146,8 +209,23 @@ pp_done:
         unlk    a6
         rts
 
-        
+
         xdef    _plot_horizontal_line
+
+;----- Function: plot_horizontal_line -----
+;
+; PURPOSE: Draws a horizontal line on the screen.
+;
+; INPUT: base - address of the screen buffer.
+;        row - vertical position of the line.
+;        col - starting horizontal position.
+;        length - number of pixels in the line.
+;
+; OUTPUT: None.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              The line is clipped horizontally.
+;------------------------------------------------------------
 
 _plot_horizontal_line:
         link    a6,#0
@@ -172,6 +250,7 @@ _plot_horizontal_line:
         move.l  d1,d3
         add.l   d2,d3
 
+; Clip the horizontal endpoints.
         tst.l   d1
         bge     ph_start_ok
         moveq   #0,d1
@@ -194,6 +273,7 @@ ph_end_ok:
         add.l   d5,d4
         adda.l  d4,a0
 
+; Draw each pixel along the line.
 ph_loop:
         move.l  d1,d4
         lsr.l   #3,d4
@@ -215,8 +295,23 @@ ph_done:
         unlk    a6
         rts
 
-        
+
         xdef    _plot_vertical_line
+
+;----- Function: plot_vertical_line -----
+;
+; PURPOSE: Draws a vertical line on the screen.
+;
+; INPUT: base - address of the screen buffer.
+;        row - starting vertical position.
+;        col - horizontal position of the line.
+;        length - number of pixels in the line.
+;
+; OUTPUT: None.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              The line is clipped vertically.
+;------------------------------------------------------------
 
 _plot_vertical_line:
         link    a6,#0
@@ -241,6 +336,7 @@ _plot_vertical_line:
         move.l  d0,d3
         add.l   d2,d3
 
+; Clip the vertical endpoints.
         tst.l   d0
         bge     pv_start_ok
         moveq   #0,d0
@@ -270,6 +366,7 @@ pv_end_ok:
         eori.w  #7,d1
         andi.w  #7,d1
 
+; Move 80 bytes to reach the next screen row.
 pv_loop:
         bset    d1,(a0)
         adda.w  #80,a0
@@ -283,8 +380,25 @@ pv_done:
         unlk    a6
         rts
 
-        
+
         xdef    _plot_line
+
+;----- Function: plot_line -----
+;
+; PURPOSE: Draws a line between two points using
+;          Bresenham's line algorithm.
+;
+; INPUT: base - address of the screen buffer.
+;        start_row - starting vertical coordinate.
+;        start_col - starting horizontal coordinate.
+;        end_row - ending vertical coordinate.
+;        end_col - ending horizontal coordinate.
+;
+; OUTPUT: None.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              Individual pixels are clipped.
+;------------------------------------------------------------
 
 _plot_line:
         link    a6,#0
@@ -300,16 +414,21 @@ _plot_line:
         move.w  18(a6),d3
         ext.l   d3
 
+; Calculate absolute horizontal distance.
         move.l  d3,d4
         sub.l   d1,d4
         bpl     pl_dx_ok
         neg.l   d4
 pl_dx_ok:
+
+; Calculate absolute vertical distance.
         move.l  d2,d5
         sub.l   d0,d5
         bpl     pl_dy_ok
         neg.l   d5
 pl_dy_ok:
+
+; Determine horizontal movement direction.
         moveq   #1,d7
         cmp.l   d3,d1
         blt     pl_sx_ok
@@ -317,6 +436,7 @@ pl_dy_ok:
 pl_sx_ok:
         movea.l d7,a1
 
+; Determine vertical movement direction.
         moveq   #1,d7
         cmp.l   d2,d0
         blt     pl_sy_ok
@@ -328,6 +448,7 @@ pl_sy_ok:
         sub.l   d5,d6
 
 pl_loop:
+; Only draw pixels inside the screen.
         tst.l   d0
         bmi     pl_check_end
         cmpi.l  #400,d0
@@ -337,6 +458,7 @@ pl_loop:
         cmpi.l  #640,d1
         bge     pl_check_end
 
+; Calculate row * 80 and the byte offset.
         move.l  d0,d7
         lsl.l   #2,d7
         add.l   d0,d7
@@ -355,12 +477,14 @@ pl_loop:
         andi.w  #7,d7
         bset    d7,(a3)
 
+; Stop after reaching the ending point.
 pl_check_end:
         cmp.l   d2,d0
         bne     pl_step
         cmp.l   d3,d1
         beq     pl_done
 
+; Update the Bresenham error value.
 pl_step:
         move.l  d6,d7
         add.l   d7,d7
@@ -390,8 +514,25 @@ pl_done:
         unlk    a6
         rts
 
-        
+
         xdef    _plot_rectangle
+
+;----- Function: plot_rectangle -----
+;
+; PURPOSE: Draws the outline of a rectangle using
+;          four lines.
+;
+; INPUT: base - address of the screen buffer.
+;        row - top-left vertical coordinate.
+;        col - top-left horizontal coordinate.
+;        length - height of the rectangle.
+;        width - width of the rectangle.
+;
+; OUTPUT: None.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              Drawing uses the plot_line routine.
+;------------------------------------------------------------
 
 _plot_rectangle:
         link    a6,#0
@@ -412,6 +553,7 @@ _plot_rectangle:
         tst.l   d3
         beq     pr_done
 
+; Determine the opposite corner.
         add.l   d0,d2
         subq.l  #1,d2
         add.l   d1,d3
@@ -419,6 +561,7 @@ _plot_rectangle:
 
         movea.l 8(a6),a0
 
+; Limit the rectangle endpoints.
         cmpi.l  #-1,d0
         bge     pr_top_high
         moveq   #-1,d0
@@ -454,6 +597,7 @@ pr_right_high:
         ble     pr_top_line
         move.l  #640,d3
 
+; Draw the top edge.
 pr_top_line:
         move.w  d3,-(sp)
         move.w  d0,-(sp)
@@ -463,6 +607,7 @@ pr_top_line:
         jsr     _plot_line
         lea     12(sp),sp
 
+; Draw the bottom edge.
         move.w  d3,-(sp)
         move.w  d2,-(sp)
         move.w  d1,-(sp)
@@ -471,6 +616,7 @@ pr_top_line:
         jsr     _plot_line
         lea     12(sp),sp
 
+; Draw the left edge.
         move.w  d1,-(sp)
         move.w  d2,-(sp)
         move.w  d1,-(sp)
@@ -479,6 +625,7 @@ pr_top_line:
         jsr     _plot_line
         lea     12(sp),sp
 
+; Draw the right edge.
         move.w  d3,-(sp)
         move.w  d2,-(sp)
         move.w  d3,-(sp)
@@ -492,8 +639,24 @@ pr_done:
         unlk    a6
         rts
 
-        
+
         xdef    _plot_square
+
+;----- Function: plot_square -----
+;
+; PURPOSE: Draws the outline of a square by calling
+;          the rectangle drawing routine.
+;
+; INPUT: base - address of the screen buffer.
+;        row - top-left vertical coordinate.
+;        col - top-left horizontal coordinate.
+;        side - length of each side in pixels.
+;
+; OUTPUT: None.
+;
+; ASSUMPTIONS: The rectangle routine is available.
+;              The screen uses 640x400 monochrome mode.
+;------------------------------------------------------------
 
 _plot_square:
         link    a6,#0
@@ -504,6 +667,7 @@ _plot_square:
         move.w  14(a6),d1
         move.w  16(a6),d2
 
+; Pass the same dimension as width and height.
         move.w  d2,-(sp)
         move.w  d2,-(sp)
         move.w  d1,-(sp)
@@ -517,8 +681,29 @@ _plot_square:
         unlk    a6
         rts
 
-        
+
         xdef    _plot_triangle
+
+;----- Function: plot_triangle -----
+;
+; PURPOSE: Draws the outline of a right triangle.
+;
+; INPUT: base - address of the screen buffer.
+;        row - vertical coordinate of the right angle.
+;        col - horizontal coordinate of the right angle.
+;        triangle_base - horizontal triangle dimension.
+;        height - vertical triangle dimension.
+;        direction - right-angle orientation:
+;                    0 = top-left
+;                    1 = top-right
+;                    2 = bottom-left
+;                    3 = bottom-right
+;
+; OUTPUT: None.
+;
+; ASSUMPTIONS: The direction is between 0 and 3.
+;              Drawing uses the plot_line routine.
+;------------------------------------------------------------
 
 _plot_triangle:
         link    a6,#0
@@ -536,6 +721,7 @@ _plot_triangle:
         moveq   #0,d6
         move.b  21(a6),d6
 
+; Reject empty triangles and invalid directions.
         tst.l   d4
         beq     pt_done
         tst.l   d5
@@ -549,6 +735,7 @@ _plot_triangle:
         subq.l  #1,d4
         subq.l  #1,d5
 
+; Determine the horizontal endpoint.
         btst    #0,d6
         bne     pt_left
         add.l   d4,d2
@@ -557,6 +744,7 @@ _plot_triangle:
 pt_left:
         sub.l   d4,d2
 
+; Determine the vertical endpoint.
 pt_vertical:
         btst    #1,d6
         bne     pt_up
@@ -569,6 +757,7 @@ pt_up:
 pt_edges:
         movea.l 8(a6),a0
 
+; Draw the horizontal edge.
         move.w  d2,-(sp)
         move.w  d0,-(sp)
         move.w  d1,-(sp)
@@ -577,6 +766,7 @@ pt_edges:
         jsr     _plot_line
         lea     12(sp),sp
 
+; Draw the vertical edge.
         move.w  d1,-(sp)
         move.w  d3,-(sp)
         move.w  d1,-(sp)
@@ -585,6 +775,7 @@ pt_edges:
         jsr     _plot_line
         lea     12(sp),sp
 
+; Draw the diagonal edge.
         move.w  d1,-(sp)
         move.w  d3,-(sp)
         move.w  d2,-(sp)
@@ -597,9 +788,3 @@ pt_done:
         movem.l (sp)+,d0-d7/a0
         unlk    a6
         rts
-
-
-
-
-
-
