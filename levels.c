@@ -3,26 +3,26 @@
 
 /*level 0 - the testing stage*/
 
-static const wallInfo level0_walls[] = { {3,5, EAST}, {3,4, SOUTH} };
+static const wallInfo level0_walls[] = { {2,3, NORTH}, {2,5, NORTH} };
 
 static const Level levels[LEVELS] = {
     {
         {
             "          ",
+            "  ....FS  ",
+            "  ..F...  ",
+            "  ...S..  ",
             "  ......  ",
-            "  .F....  ",
-            "  ......  ",
-            "  ....S.  ",
-            "  ..G...  ",
-            "  ......  ",
+            "  ...G.   ",
+            "          ",
             "          ",
             "          ",
             "          "
         },
-        level0_walls, 
+        level0_walls,
         2,
-        {3, 4, NORTH}, /*player spawn*/
-        {7, 5, SOUTH}  /*ally spawn*/
+        {2, 3, NORTH}, /*player spawn*/
+        {7, 3, SOUTH}  /*ally spawn*/
     }
 };
 

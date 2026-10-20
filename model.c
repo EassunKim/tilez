@@ -191,16 +191,18 @@ void model_turn_around(Model *model) {
 }
 
 /*----- Function: model_slip -----
-HAS TO BE IMPLAMENTED LATER, MY BRAIN IS FRIED FOR NOW
- PURPOSE: Slides a character one extra cell after landing on a slip tile.
-          Called from cond.c.
-
- INPUT: model - the model the character is in
-        who   - the character on the slip tile
-        other - the other character
-
- OUTPUT: TRUE if the character slid, FALSE if blocked (it stays on the slip tile)
+* PURPOSE: Slides a character one extra cell after landing on a slip tile.
+*          Called from cond.c.
+*
+* INPUT: model - the model the character is in
+*        character   - the character on the slip tile
+*        other - the other character
+*
+* OUTPUT: TRUE if the character slid, FALSE if blocked (it stays on the slip tile)
+*
+* Note:   When slip is called it will be after a player has moved to a tile, so this 
+*         is just another step after the fact, if not blocked.
 */
-BOOL model_slip(Model *model, Player *who, const Player *other) {
-    return FALSE;
+BOOL model_slip(Model *model, Player *character, const Player *other) {
+   return try_step(model, character, other);
 }

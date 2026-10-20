@@ -1,5 +1,6 @@
 #ifndef RASTER_H
 #define RASTER_H
+#include "types.h"
 
 /*----- Function: clear_screen -----
 v

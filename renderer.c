@@ -1,6 +1,7 @@
 
 #include "renderer.h"
 #include "raster.h"
+#include "types.h"
 
 #define TILE_WIDTH 32
 #define TILE_HEIGHT 32
@@ -20,12 +21,6 @@ void render_tile(const Tile *tile, UINT8 *base, int row, int col)
     if (tile->type == T_FIRE)
     {
         plot_triangle((UINT32 *)base, row + 8, col + 10, 12, 16, 0);
-    }
-
-    /* Draw a safe tile */
-    else if (tile->type == T_SAFE)
-    {
-        plot_square((UINT32 *)base, row + 10, col + 10, 12);
     }
 
     /* Draw a goal tile */
@@ -120,3 +115,25 @@ void render_player(const Player *player, UINT8 *base)
     }
 }
 
+
+
+/*----- Function: render -----
+* PURPOSE: Draws one full frame of the game from the model: clears the
+*          screen, then draws the board, the player and the ally.
+*
+* INPUT:   model - the game state to draw
+*          base  - start of the frame buffer to draw into
+*
+* OUTPUT:  None
+*
+* ASSUMPTIONS: Redraws everything each call (no minimised plotting yet).
+*              The player and ally are drawn the same way for now.
+*/
+void render(const Model *model, UINT8 *base)
+{
+    clear_screen((UINT32 *)base);
+
+    render_board(model->grid, base);
+    render_player(&model->player, base);
+    render_player(&model->ally, base);
+}
