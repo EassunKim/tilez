@@ -12,11 +12,13 @@ COMP 2659, Mount Royal University, Fall 2026. A tile puzzle game for the Atari S
 
 Model, raster graphics library, and renderer.
 
-### Mohamad Hamade ()
+### Mohamad Hamade (raster graphics and renderer)
 
 | File | Description |
-| ---- | ----------- |
-
+| ----|----------- |
+| `rast_asm.s` | Assembly raster library with 9 functions for clearing the screen and drawing pixels, lines, and shapes. |
+| `raster.h` | Header file declaring all 14 raster graphics functions. |
+| `renderer.c` / `renderer.h` | Renderer functions for drawing tiles, walls, the game board, and player. |
 
 
 ### Ujjwal Bhandari ()
