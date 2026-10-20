@@ -15,22 +15,22 @@ BM_ROW_BYTES    equ     80
     xdef    _plot_string
     xref    _font
 
-/*----- Function: bitmap_visible - PRIVATE HELPER-----
- *
- * PURPOSE: Checks whether any portion of a bitmap
- *          is visible within the screen boundaries.
- *
- * INPUT: row - starting row of the bitmap.
- *        col - starting column of the bitmap.
- *        height - number of rows in the bitmap.
- *        width - number of pixels per bitmap row.
- *
- * OUTPUT: Returns 1 if any portion of the bitmap is
- *         visible, or 0 if completely off-screen.
- *
- * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
- *              A bitmap with zero height is not visible.
- */
+;----- Function: bitmap_visible - PRIVATE HELPER-----
+;
+; PURPOSE: Checks whether any portion of a bitmap
+;          is visible within the screen boundaries.
+;
+; INPUT: row - starting row of the bitmap.
+;        col - starting column of the bitmap.
+;        height - number of rows in the bitmap.
+;        width - number of pixels per bitmap row.
+;
+; OUTPUT: Returns 1 if any portion of the bitmap is
+;         visible, or 0 if completely off-screen.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              A bitmap with zero height is not visible.
+;------------------------------------------------------------
 
 
 bitmap_visible:
@@ -74,21 +74,21 @@ bv_not_visible:
 bv_done:
     rts
 
-/*----- Function: clip_rows - PRIVATE HELPER -----
- *
- * PURPOSE: Determines which rows of a bitmap are visible
- *          within the screen's vertical boundaries.
- *
- * INPUT: row - starting row of the bitmap.
- *        height - total number of bitmap rows.
- *
- * OUTPUT: startRow - pointer to the first visible bitmap row.
- *         endRow - pointer to the ending row (exclusive).
- *         No return value.
- *
- * ASSUMPTIONS: The screen height is 400 pixels.
- *              The caller has already checked bitmap visibility.
- */
+;----- Function: clip_rows - PRIVATE HELPER -----
+;
+; PURPOSE: Determines which rows of a bitmap are visible
+;          within the screen's vertical boundaries.
+;
+; INPUT: row - starting row of the bitmap.
+;        height - total number of bitmap rows.
+;
+; OUTPUT: startRow - pointer to the first visible bitmap row.
+;         endRow - pointer to the ending row (exclusive).
+;         No return value.
+;
+; ASSUMPTIONS: The screen height is 400 pixels.
+;              The caller has already checked bitmap visibility.
+;------------------------------------------------------------
 
 clip_rows:
     ;initialize visible range to entire bitmap
@@ -122,24 +122,24 @@ cr_end:
     rts
 
 
-/*----- Function: plot_8bit_bitmap -----
- *
- * PURPOSE: Draws an 8-pixel-wide bitmap onto the
- *          Atari ST monochrome screen.
- *
- * INPUT: base - pointer to the screen buffer.
- *        row - vertical position of the bitmap.
- *        col - horizontal position of the bitmap.
- *        bitmap - pointer to the bitmap pixel data.
- *        height - number of rows in the bitmap.
- *
- * OUTPUT: Modifies the screen buffer to draw the bitmap, 
- *         but thers no return value.
- *
- * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
- *              Each bitmap row contains 8 pixels.
- *              Contains atleast height rows.
- */
+;----- Function: plot_8bit_bitmap -----
+;
+; PURPOSE: Draws an 8-pixel-wide bitmap onto the
+;          Atari ST monochrome screen.
+;
+; INPUT: base - pointer to the screen buffer.
+;        row - vertical position of the bitmap.
+;        col - horizontal position of the bitmap.
+;        bitmap - pointer to the bitmap pixel data.
+;        height - number of rows in the bitmap.
+;
+; OUTPUT: Modifies the screen buffer to draw the bitmap, 
+;         but thers no return value.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              Each bitmap row contains 8 pixels.
+;              Contains atleast height rows.
+;------------------------------------------------------------
 
 _plot_8bit_bitmap:
     link    a6,#0
@@ -259,24 +259,24 @@ p8_done:
 
 
 
-/*----- Function: plot_16bit_bitmap -----
- *
- * PURPOSE: Draws an 16-pixel-wide bitmap onto the
- *          Atari ST monochrome screen.
- *
- * INPUT: base - pointer to the screen buffer.
- *        row - vertical position of the bitmap.
- *        col - horizontal position of the bitmap.
- *        bitmap - pointer to the bitmap pixel data.
- *        height - number of rows in the bitmap.
- *
- * OUTPUT: Modifies the screen buffer to draw the bitmap, 
- *         but thers no return value.
- *
- * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
- *              Each bitmap row contains 16 pixels.
- *              Contains atleast height rows.
- */
+;----- Function: plot_16bit_bitmap -----
+;
+; PURPOSE: Draws an 16-pixel-wide bitmap onto the
+;          Atari ST monochrome screen.
+;
+; INPUT: base - pointer to the screen buffer.
+;        row - vertical position of the bitmap.
+;        col - horizontal position of the bitmap.
+;        bitmap - pointer to the bitmap pixel data.
+;        height - number of rows in the bitmap.
+;
+; OUTPUT: Modifies the screen buffer to draw the bitmap, 
+;         but thers no return value.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              Each bitmap row contains 16 pixels.
+;              Contains atleast height rows.
+;------------------------------------------------------------
 
 _plot_16bit_bitmap:
     link    a6,#0
@@ -389,23 +389,23 @@ p16_done:
     rts 
 
 
-/*----- Function: plot_8bit_bitmap -----
- *
- * PURPOSE: Draws an 8-pixel-wide bitmap onto the
- *          Atari ST monochrome screen.
- *
- * INPUT: base - pointer to the screen buffer.
- *        row - vertical position of the bitmap.
- *        col - horizontal position of the bitmap.
- *        bitmap - pointer to the bitmap pixel data.
- *        height - number of rows in the bitmap.
- *
- * OUTPUT: Modifies the screen buffer to draw the bitmap, 
- *         but thers no return value.
- * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
- *              Each bitmap row contains 8 pixels.
- *              Contains atleast height rows.
- */
+;----- Function: plot_8bit_bitmap -----
+;
+; PURPOSE: Draws an 8-pixel-wide bitmap onto the
+;          Atari ST monochrome screen.
+;
+; INPUT: base - pointer to the screen buffer.
+;        row - vertical position of the bitmap.
+;        col - horizontal position of the bitmap.
+;        bitmap - pointer to the bitmap pixel data.
+;        height - number of rows in the bitmap.
+;
+; OUTPUT: Modifies the screen buffer to draw the bitmap, 
+;         but thers no return value.
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              Each bitmap row contains 8 pixels.
+;              Contains atleast height rows.
+;------------------------------------------------------------
 
 _plot_32bit_bitmap:
     link    a6,#0
@@ -516,27 +516,27 @@ p32_done:
     unlk    a6
     rts 
 
-/*----- Function: plot_character -----
- *
- * PURPOSE: Draws a single character on the screen
- *          using a bitmap from the font table.
- *
- * INPUT: base - pointer to the screen buffer.
- *        row - vertical position of the character.
- *        col - horizontal position of the character.
- *        ch - character to draw.
- *
- * OUTPUT: Modifies the screen buffer to draw the bitmap, 
- *         but thers no return value.
- *
- * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
- *              The required character exists in the font table.
- *              Font table contains ASCII 32 to 126, represented
- *              by an 8x8 bitmap. Chars outside this range are ignored.
- */
+;----- Function: plot_character -----
+;
+; PURPOSE: Draws a single character on the screen
+;          using a bitmap from the font table.
+;
+; INPUT: base - pointer to the screen buffer.
+;        row - vertical position of the character.
+;        col - horizontal position of the character.
+;        ch - character to draw.
+;
+; OUTPUT: Modifies the screen buffer to draw the bitmap, 
+;         but thers no return value.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              The required character exists in the font table.
+;              Font table contains ASCII 32 to 126, represented
+;              by an 8x8 bitmap. Chars outside this range are ignored.
+;------------------------------------------------------------
 
 _plot_character:
-    link    a6,#0, 
+    link    a6,#0
     movem.l d0-d7/a0-a2,-(sp)
 
     move.l  BM_BASE(a6),a0
@@ -574,24 +574,24 @@ pc_done:
     unlk    a6 
     rts 
 
-/*----- Function: plot_string -----
- *
- * PURPOSE: Draws a string of characters on the screen
- *          using bitmaps from the font table.
- *
- * INPUT: base - pointer to the screen buffer.
- *        row - vertical position of the string.
- *        col - horizontal starting position.
- *        ch - pointer to the string to draw.
- *
- * OUTPUT: Modifies the screen buffer to draw the string,
- *         but there is no return.
- *
- * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
- *              The string is null-terminated.
- *              Characters are represented by 8x8 bitmaps.
- *              Required characters are printable ASCII (32-126).
- */
+;----- Function: plot_string -----
+;
+; PURPOSE: Draws a string of characters on the screen
+;          using bitmaps from the font table.
+;
+; INPUT: base - pointer to the screen buffer.
+;        row - vertical position of the string.
+;        col - horizontal starting position.
+;        ch - pointer to the string to draw.
+;
+; OUTPUT: Modifies the screen buffer to draw the string,
+;         but there is no return.
+;
+; ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+;              The string is null-terminated.
+;              Characters are represented by 8x8 bitmaps.
+;              Required characters are printable ASCII (32-126).
+;------------------------------------------------------------
 
 _plot_string:
     link a6,#0

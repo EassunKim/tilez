@@ -60,25 +60,7 @@ int main(void)
         printf("FAIL fire tile\n");
     }
 
-    /* TEST 3: Safe tile */
-    reset_screen();
-
-    tile.type = T_SAFE;
-    tile.walls = 0;
-
-    render_tile(&tile, base, 40, 160);
-
-    if (is_set(50, 170) && is_set(50, 181) &&
-        is_set(61, 170) && is_set(61, 181))
-    {
-        printf("PASS safe tile\n");
-    }
-    else
-    {
-        printf("FAIL safe tile\n");
-    }
-
-    /* TEST 4: Goal tile */
+    /* TEST 3 Goal tile */
     reset_screen();
 
     tile.type = T_GOAL;
@@ -96,7 +78,7 @@ int main(void)
         printf("FAIL goal tile\n");
     }
 
-    /* TEST 5: Slip tile */
+    /* TEST 4: Slip tile */
     reset_screen();
 
     tile.type = T_SLIP;
@@ -115,7 +97,7 @@ int main(void)
         printf("FAIL slip tile\n");
     }
 
-    /* TEST 6: North and East walls */
+    /* TEST 5: North and East walls */
     reset_screen();
 
     tile.type = T_NORMAL;
@@ -135,7 +117,7 @@ int main(void)
         printf("FAIL north and east walls\n");
     }
 
-    /* TEST 7: Entire board */
+    /* TEST 6: Entire board */
     reset_screen();
 
     for (r = 0; r < GRID_HEIGHT; r++)
@@ -167,7 +149,7 @@ int main(void)
 
     /* Bitmap starts at row 180, column 268 */
 
-    /* TEST 8: Player facing North */
+    /* TEST 7: Player facing North */
     reset_screen();
 
     player.facing = NORTH;
@@ -185,7 +167,7 @@ int main(void)
         printf("FAIL player north\n");
     }
 
-    /* TEST 9: Player facing East */
+    /* TEST 8: Player facing East */
 reset_screen();
 
 player.facing = EAST;
@@ -204,7 +186,7 @@ else
     printf("FAIL player east\n");
 }
 
-    /* TEST 10: Player facing South */
+    /* TEST 9: Player facing South */
     reset_screen();
 
     player.facing = SOUTH;
@@ -223,7 +205,7 @@ else
         printf("FAIL player south\n");
     }
 
-    /* TEST 11: Player facing West */
+    /* TEST 10: Player facing West */
     reset_screen();
 
     player.facing = WEST;

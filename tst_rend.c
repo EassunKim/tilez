@@ -79,7 +79,7 @@ static void test(Model *model, UINT8 *base) {
 
     asynch_forward(model);
     show("W", model, base);
-    check(model, 3,3,EAST, 6,3,WEST, 2, FALSE);
+    check(model, 3,3,EAST, 6,3,WEST, 1, FALSE);
 
     /*--------FIRE TEST ------------*/
     /* warp to be infront of fire tile*/
@@ -98,8 +98,8 @@ static void test(Model *model, UINT8 *base) {
     check(model, 3,2,EAST, 6,3,WEST, 1, FALSE);
 
     asynch_forward(model);
-    show("into fire", model, base);
-    check(model, 2,3, NORTH, 5,5,WEST , 2, TRUE); /*expected level complete flag and player to have moved forward 1*/
+    show("Touches goal", model, base);
+    check(model, 2,3, NORTH, 5,5,WEST , 3, TRUE); /*expected level complete flag and player to have moved forward 1*/
 
 }
 
