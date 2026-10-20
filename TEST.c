@@ -102,7 +102,7 @@ int main(void)
 
     reset_screen();
     plot_horizontal_line(base, 4, 4, 0);
-    plot_vertical_line(base, 4, 4, 0);*/
+    plot_vertical_line(base, 4, 4, 0);
     plot_triangle(base, 4, 4, 0, 2, 0);
     verify("zero dimensions do nothing", !is_set(4, 4));
 
@@ -213,6 +213,7 @@ int main(void)
     const UINT32 bitmap32extra[] = {
         0xFFFFFFFFUL, 0x80000001UL
     };
+
 
     reset_screen();
     plot_32bit_bitmap(base, 40, -7, bitmap32extra, 2);
