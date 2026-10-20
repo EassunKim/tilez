@@ -9,20 +9,20 @@ static const Level levels[LEVELS] = {
     {
         {
             "          ",
+            "  ....FS  ",
+            "  ..F...  ",
+            "  ...S..  ",
             "  ......  ",
-            "  .F....  ",
-            "  ......  ",
-            "  ....S.  ",
-            "  ..G...  ",
-            "  ......  ",
+            "  ...G.   ",
+            "          ",
             "          ",
             "          ",
             "          "
         },
-        level0_walls, 
+        level0_walls,
         2,
-        {3, 4, NORTH}, /*player spawn*/
-        {7, 5, SOUTH}  /*ally spawn*/
+        {2, 3, NORTH}, /*player spawn*/
+        {7, 3, SOUTH}  /*ally spawn*/
     }
 };
 
