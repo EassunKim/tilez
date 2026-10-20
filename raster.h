@@ -179,17 +179,20 @@ void plot_triangle(UINT32 *base, int row, int col, UINT16 triangle_base, UINT16 
  *        bitmap - pointer to the bitmap pixel data.
  *        height - number of rows in the bitmap.
  *
- * OUTPUT: None.
+ * OUTPUT: Modifies the screen buffer to draw the bitmap, 
+ *         but thers no return value.
  *
  * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
  *              Each bitmap row contains 8 pixels.
+ *              Contains atleast height rows.
  */
+
 void plot_8bit_bitmap(UINT8 *base, int row, int col, const UINT8 *bitmap, UINT16 height);
 
 
 /*----- Function: plot_16bit_bitmap -----
  *
- * PURPOSE: Draws a 16-pixel-wide bitmap onto the
+ * PURPOSE: Draws an 16-pixel-wide bitmap onto the
  *          Atari ST monochrome screen.
  *
  * INPUT: base - pointer to the screen buffer.
@@ -198,10 +201,12 @@ void plot_8bit_bitmap(UINT8 *base, int row, int col, const UINT8 *bitmap, UINT16
  *        bitmap - pointer to the bitmap pixel data.
  *        height - number of rows in the bitmap.
  *
- * OUTPUT: None.
+ * OUTPUT: Modifies the screen buffer to draw the bitmap, 
+ *         but thers no return value.
  *
  * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
  *              Each bitmap row contains 16 pixels.
+ *              Contains atleast height rows.
  */
 void plot_16bit_bitmap(UINT16 *base, int row, int col, const UINT16 *bitmap, UINT16 height);
 
@@ -235,10 +240,13 @@ void plot_32bit_bitmap(UINT32 *base, int row, int col, const UINT32 *bitmap, UIN
  *        col - horizontal position of the character.
  *        ch - character to draw.
  *
- * OUTPUT: None.
+ * OUTPUT: Modifies the screen buffer to draw the bitmap, 
+ *         but thers no return value.
  *
  * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
  *              The required character exists in the font table.
+ *              Font table contains ASCII 32 to 126, represented
+ *              by an 8x8 bitmap. Chars outside this range are ignored.
  */
 void plot_character(UINT8 *base, int row, int col, char ch);
 
@@ -253,11 +261,13 @@ void plot_character(UINT8 *base, int row, int col, char ch);
  *        col - horizontal starting position.
  *        ch - pointer to the string to draw.
  *
- * OUTPUT: None.
+ * OUTPUT: Modifies the screen buffer to draw the string,
+ *         but there is no return.
  *
  * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
  *              The string is null-terminated.
- *              Required characters exist in the font table.
+ *              Characters are represented by 8x8 bitmaps.
+ *              Required characters are printable ASCII (32-126).
  */
 void plot_string(UINT8 *base, int row, int col, char *ch);
 
