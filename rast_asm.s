@@ -686,7 +686,7 @@ cr_col:
         cmp.l   d2,d4
         blt     cr_row
 
-cr_done:
+cra_done:
         movem.l (sp)+,d0-d7/a0-a2
         unlk    a6
         rts

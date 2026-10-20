@@ -52,7 +52,7 @@ static void check_goal(Model *model) {
 
  OUTPUT: None
 
- NOTE:   Slips are resolved first so a slide onto fire is caught.
+ NOTE:   Slips are resolved first(on both entities) so a slide onto fire is caught.
 */
 void cond_after_move(Model *model) {
     apply_slip(model, &model->player, &model->ally);
