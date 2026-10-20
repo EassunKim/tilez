@@ -1,3 +1,17 @@
+/*
+ * File: TEST.c
+ * Course: COMP 2659
+ * Project: Checkpoint 2
+ *
+ * Team Members: [Mohamed, Ujjwal, Matthew]
+ * Author: [Ujjwal]
+ *
+ * PURPOSE:
+ * Tests the raster graphics library to comfirm the implemented
+ * plotting functions work correctly. Tests include
+ * normal drawing, screen boundary clipping, and
+ * invalid coordinates. The tester reports pass/fail status.
+ */
 #include <stdio.h>
 #include <string.h>
 #include "raster.h"
