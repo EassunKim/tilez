@@ -1,0 +1,95 @@
+# TileZ makefile (cc68x)
+#
+#   make               builds the model test driver, tst_modl.tos
+#   make tst_rast.tos  builds the raster library test driver
+#   make rendtest.tos  builds the renderer unit test
+#   make tst_rend.tos  builds the renderer test driver (draws on screen)
+#   make all           builds all four
+#
+# The raster library is entirely in assembly (rast_asm.s) plus the font
+# data (font.c). raster.c holds the old C drafts and is NOT built.
+#
+# Every .o lists its source file plus EVERY header it includes, directly or
+# through another header, so editing a header rebuilds what depends on it.
+
+# header groups (each includes the ones it depends on)
+PLAYER_H   = player.h types.h
+TILE_H     = tile.h types.h
+LEVELS_H   = levels.h $(TILE_H) $(PLAYER_H)
+MODEL_H    = model.h $(LEVELS_H)
+EVENTS_H   = events.h asynch.h synch.h cond.h $(MODEL_H)
+RASTER_H   = raster.h types.h
+FONT_H     = font.h types.h
+RENDERER_H = renderer.h $(MODEL_H)
+
+# object groups
+MODEL_OBJS  = model.o player.o tile.o levels.o asynch.o synch.o cond.o
+RASTER_OBJS = rast_asm.o font.o
+
+# ---------- programs ----------
+
+tst_modl.tos: tst_modl.o $(MODEL_OBJS)
+	cc68x -g tst_modl.o $(MODEL_OBJS) -o tst_modl.tos
+
+tst_rast.tos: TEST.o $(RASTER_OBJS)
+	cc68x -g TEST.o $(RASTER_OBJS) -o tst_rast.tos
+
+rendtest.tos: rendtest.o renderer.o $(RASTER_OBJS)
+	cc68x -g rendtest.o renderer.o $(RASTER_OBJS) -o rendtest.tos
+
+tst_rend.tos: tst_rend.o renderer.o $(MODEL_OBJS) $(RASTER_OBJS)
+	cc68x -g tst_rend.o renderer.o $(MODEL_OBJS) $(RASTER_OBJS) -o tst_rend.tos
+
+all: tst_modl.tos tst_rast.tos rendtest.tos tst_rend.tos
+
+# ---------- model ----------
+
+player.o: player.c $(PLAYER_H)
+	cc68x -g -c player.c
+
+tile.o: tile.c $(TILE_H)
+	cc68x -g -c tile.c
+
+levels.o: levels.c $(LEVELS_H)
+	cc68x -g -c levels.c
+
+model.o: model.c $(MODEL_H)
+	cc68x -g -c model.c
+
+# ---------- events ----------
+
+asynch.o: asynch.c asynch.h cond.h $(MODEL_H)
+	cc68x -g -c asynch.c
+
+synch.o: synch.c synch.h $(MODEL_H)
+	cc68x -g -c synch.c
+
+cond.o: cond.c cond.h $(MODEL_H)
+	cc68x -g -c cond.c
+
+# ---------- raster ----------
+
+font.o: font.c $(FONT_H)
+	cc68x -g -c font.c
+
+rast_asm.o: rast_asm.s
+	gen -D -L2 rast_asm.s
+
+# ---------- renderer ----------
+
+renderer.o: renderer.c $(RENDERER_H) $(RASTER_H)
+	cc68x -g -c renderer.c
+
+# ---------- tests ----------
+
+tst_modl.o: tst_modl.c $(EVENTS_H)
+	cc68x -g -c tst_modl.c
+
+TEST.o: TEST.c $(RASTER_H)
+	cc68x -g -c TEST.c
+
+tst_rend.o: tst_rend.c $(EVENTS_H) $(RENDERER_H) $(RASTER_H)
+	cc68x -g -c tst_rend.c
+
+rendtest.o: rendtest.c $(RENDERER_H)
+	cc68x -g -c rendtest.c
