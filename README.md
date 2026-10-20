@@ -8,7 +8,7 @@ COMP 2659, Mount Royal University, Fall 2026. A tile puzzle game for the Atari S
 - Mohamad Hamade
 - Ujjwal Bhandari
 
-## Checkpoint 2
+## Checkpoint 2 - October 19
 
 Model, raster graphics library, and renderer.
 
