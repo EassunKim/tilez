@@ -17,10 +17,14 @@ Model, raster graphics library, and renderer.
 | File | Description |
 | ---- | ----------- |
 
+
+
 ### Ujjwal Bhandari ()
 
 | File | Description |
-| ---- | ----------- |
+| --- | --- |
+| Rast_asm.s| Raster library containing many methods to plot pixels, lines, shapes, bitmaps, and characters. My focus was on implementing the bitmap functions along with single characters and strings. |
+|TEST.c| Contains multiple test cases for each function. Bitmap/Char tests are based around boundary handling, input handling, and base cases. Verifies expected results and reports a pass/fail.|
 
 ### Matthew Kim (model and events)
 
