@@ -15,32 +15,43 @@ BM_ROW_BYTES    equ     80
     xdef    _plot_string
     xref    _font
 
-;bitmap_visible
-;input:
-;d0 = row
-;d1 = col 
-;d2 = height 
-;d3 = width
-; Output 
-; d4 = 1 if visible, 0 otherwise
-;d4/d5 mopdified
+/*----- Function: bitmap_visible - PRIVATE HELPER-----
+ *
+ * PURPOSE: Checks whether any portion of a bitmap
+ *          is visible within the screen boundaries.
+ *
+ * INPUT: row - starting row of the bitmap.
+ *        col - starting column of the bitmap.
+ *        height - number of rows in the bitmap.
+ *        width - number of pixels per bitmap row.
+ *
+ * OUTPUT: Returns 1 if any portion of the bitmap is
+ *         visible, or 0 if completely off-screen.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              A bitmap with zero height is not visible.
+ */
 
-;Private Helper
+
 bitmap_visible:
     clr.w   d4
 
+    ;check for 0 bitmap height
     tst.w   d2
     beq     bv_done
 
+    ;check if bitmap is outside horizontal boundary
     move.w  d3,d5
     neg.w   d5
 
     cmp.w   d5,d1
     ble     bv_done
 
+    ;Check if bitmap is below the screen
     cmpi.w  #SCREEN_WIDTH,d1
     bge     bv_done
 
+    ;Check if bitmap ends above the scree
     cmpi.w  #SCREEN_HEIGHT,d0
     bge     bv_done
 
@@ -63,20 +74,28 @@ bv_not_visible:
 bv_done:
     rts
 
-;clip_rows
-;Input:
-;d0 = row
-;d2 = height
-;Output:
-;d4 = startRow
-;d5 = endRow
-;d4,d5,d6,d7 modified
+/*----- Function: clip_rows - PRIVATE HELPER -----
+ *
+ * PURPOSE: Determines which rows of a bitmap are visible
+ *          within the screen's vertical boundaries.
+ *
+ * INPUT: row - starting row of the bitmap.
+ *        height - total number of bitmap rows.
+ *
+ * OUTPUT: startRow - pointer to the first visible bitmap row.
+ *         endRow - pointer to the ending row (exclusive).
+ *         No return value.
+ *
+ * ASSUMPTIONS: The screen height is 400 pixels.
+ *              The caller has already checked bitmap visibility.
+ */
 
-;Private Helper
 clip_rows:
+    ;initialize visible range to entire bitmap
     clr.w   d4
     move.w  d2,d5
 
+    ;adjust startRow if bitmap is above the screen
     tst.w   d0
     bpl     cr_check_bottom
 
@@ -84,6 +103,7 @@ clip_rows:
     neg.w   d4
 
 cr_check_bottom:
+    ;Calculate row + height to check bottom boundary
     move.w  d0,d6
     ext.l   d6
 
@@ -92,22 +112,34 @@ cr_check_bottom:
     add.l   d7,d6
 
     cmpi.l  #SCREEN_HEIGHT,d6
-    ble     cr_done
+    ble     cr_end
 
+    ;adjust endRow to exclude rows below the screen
     move.w  #SCREEN_HEIGHT,d5
     sub.w   d0,d5
 
-cr_done:
+cr_end:
     rts
 
 
-;plot_8bit_bitmap
-;Input:
-;base = screen buffer address
-;row    = starting row
-;col    = starting column
-;bitmap = bitmap data address
-;height = bitmap height
+/*----- Function: plot_8bit_bitmap -----
+ *
+ * PURPOSE: Draws an 8-pixel-wide bitmap onto the
+ *          Atari ST monochrome screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the bitmap.
+ *        col - horizontal position of the bitmap.
+ *        bitmap - pointer to the bitmap pixel data.
+ *        height - number of rows in the bitmap.
+ *
+ * OUTPUT: Modifies the screen buffer to draw the bitmap, 
+ *         but thers no return value.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              Each bitmap row contains 8 pixels.
+ *              Contains atleast height rows.
+ */
 
 _plot_8bit_bitmap:
     link    a6,#0
@@ -130,7 +162,8 @@ _plot_8bit_bitmap:
     
     jsr     clip_rows
 
-    ;offset calculations
+    ;offset calculations :
+    ;(row + startRow) * 80 bytes, 80 = 64 + 16 using shifts. 
 
     ext.l   d0
     move.w  d4,d6
@@ -148,8 +181,7 @@ _plot_8bit_bitmap:
 
     clr.w   d3
 
-    ;if col >=, adding horizontal offset
-
+    ;For positive columns, calculate byte offset and starting bit
     tst.w   d1
     bmi     p8_setup_loop
 
@@ -161,7 +193,7 @@ _plot_8bit_bitmap:
     andi.w  #7,d3
 
 p8_setup_loop:
-    ;skip vertical clips
+    ;skip rows clipped above the screen
     adda.w  d4,a1
 
     ;Visible rows = endrow - startRow
@@ -173,13 +205,11 @@ p8_setup_loop:
     beq     p8_done
 
 p8_plot_loop:
-; read a bitmap row
-
+    ;read the next bitmap row
     clr.l   d4
     move.b  (a1)+,d4
 
-    ;negative column
-
+    ;Shift bitmap bits left to compensate for a negative column
     tst.w   d1
     bpl     p8_first_byte
 
@@ -188,14 +218,12 @@ p8_plot_loop:
     lsl.b   d6,d4
 
 p8_first_byte:
-    ;first byte
-
+    ;Shift and OR bitmap bits into the first byte
     move.b  d4,d6 
     lsr.b   d3,d6 
     or.b    d6,(a0)
 
     ;check if a second byte is needed
-
     tst.w   d3 
     beq     p8_next_row
 
@@ -205,8 +233,7 @@ p8_first_byte:
     cmpi.w  #79,d6
     bge     p8_next_row
 
-    ;second byte
-
+    ;Shift remaining bits into the next byte
     moveq   #8,d6
     sub.w   d3,d6
 
@@ -218,6 +245,7 @@ p8_first_byte:
     or.b    d7,(a2)
 
 p8_next_row:
+    ;Advance to the next row
     adda.l  #BM_ROW_BYTES,a0
 
     subq.w  #1,d2
@@ -231,13 +259,24 @@ p8_done:
 
 
 
-;plot_16bit_bitmap
-;Input:
-;base = screen buffer address
-;row    = starting row
-;col    = starting column
-;bitmap = bitmap data address
-;height = bitmap height
+/*----- Function: plot_16bit_bitmap -----
+ *
+ * PURPOSE: Draws an 16-pixel-wide bitmap onto the
+ *          Atari ST monochrome screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the bitmap.
+ *        col - horizontal position of the bitmap.
+ *        bitmap - pointer to the bitmap pixel data.
+ *        height - number of rows in the bitmap.
+ *
+ * OUTPUT: Modifies the screen buffer to draw the bitmap, 
+ *         but thers no return value.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              Each bitmap row contains 16 pixels.
+ *              Contains atleast height rows.
+ */
 
 _plot_16bit_bitmap:
     link    a6,#0
@@ -249,7 +288,7 @@ _plot_16bit_bitmap:
     move.l  BM_BITMAP(a6),a1
     move.w  BM_HEIGHT(a6),d2
 
-    ;Check if bitmap visible
+    ;Check if bitmap is visible
     move.w  #16,d3
     jsr     bitmap_visible
 
@@ -260,7 +299,7 @@ _plot_16bit_bitmap:
     
     jsr     clip_rows
 
-    ;offset calculations
+    ;offset calculations = (row + startRow) * 80
 
     ext.l   d0
     move.w  d4,d6
@@ -278,8 +317,7 @@ _plot_16bit_bitmap:
 
     clr.w   d3
 
-    ;if col >=, adding horizontal offset
-
+    ;Offset and starting bit for negative columns
     tst.w   d1
     bmi     p16_setup_loop
 
@@ -292,12 +330,10 @@ _plot_16bit_bitmap:
     andi.w  #15,d3
 
 p16_setup_loop:
-    ;skip vertical clips
+    ;skip clipped rows (2 bytes/row)
     move.w  d4,d6
     lsl.w   #1,d6
     adda.w  d6,a1
-
-    ;Visible rows = endrow - startRow
 
     move.w  d5,d2
     sub.w   d4,d2
@@ -306,12 +342,8 @@ p16_setup_loop:
     beq     p16_done
 
 p16_plot_loop:
-; read a bitmap row
-
     clr.l   d4
     move.w  (a1)+,d4
-
-    ;negative column
 
     tst.w   d1
     bpl     p16_first_byte
@@ -321,13 +353,9 @@ p16_plot_loop:
     lsl.w   d6,d4
 
 p16_first_byte:
-    ;first byte
-
     move.w  d4,d6 
     lsr.w   d3,d6 
     or.w    d6,(a0)
-
-    ;check if a second byte is needed
 
     tst.w   d3 
     beq     p16_next_row
@@ -338,8 +366,7 @@ p16_first_byte:
     cmpi.w  #39,d6
     bge     p16_next_row
 
-    ;second byte
-
+    ;Write remaining bits into the second 16-bit word
     moveq   #16,d6
     sub.w   d3,d6
 
@@ -362,13 +389,23 @@ p16_done:
     rts 
 
 
-;plot_32bit_bitmap
-;Input:
-;base = screen buffer address
-;row    = starting row
-;col    = starting column
-;bitmap = bitmap data address
-;height = bitmap height
+/*----- Function: plot_8bit_bitmap -----
+ *
+ * PURPOSE: Draws an 8-pixel-wide bitmap onto the
+ *          Atari ST monochrome screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the bitmap.
+ *        col - horizontal position of the bitmap.
+ *        bitmap - pointer to the bitmap pixel data.
+ *        height - number of rows in the bitmap.
+ *
+ * OUTPUT: Modifies the screen buffer to draw the bitmap, 
+ *         but thers no return value.
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              Each bitmap row contains 8 pixels.
+ *              Contains atleast height rows.
+ */
 
 _plot_32bit_bitmap:
     link    a6,#0
@@ -387,12 +424,9 @@ _plot_32bit_bitmap:
     tst.w   d4
     beq     p32_done
 
-    ;Get visible rows 
-    
     jsr     clip_rows
 
-    ;offset calculations
-
+    ;Calculate screen offset
     ext.l   d0
     move.w  d4,d6
     ext.l   d6
@@ -405,11 +439,9 @@ _plot_32bit_bitmap:
 
     adda.l  d0,a0 
 
-    ;startingBit = 0
-
     clr.w   d3
 
-    ;if col >=, adding horizontal offset
+    ;Calculate byte offset and starting bit within a 32-bit long
 
     tst.w   d1
     bmi     p32_setup_loop
@@ -423,12 +455,10 @@ _plot_32bit_bitmap:
     andi.w  #31,d3
 
 p32_setup_loop:
-    ;skip vertical clips
+    ;skip clipped rows (4 bytes per row)
     move.w  d4,d6
     lsl.w   #2,d6
     adda.w  d6,a1
-
-    ;Visible rows = endrow - startRow
 
     move.w  d5,d2
     sub.w   d4,d2
@@ -437,12 +467,9 @@ p32_setup_loop:
     beq     p32_done
 
 p32_plot_loop:
-; read a bitmap row
 
     clr.l   d4
     move.l  (a1)+,d4
-
-    ;negative column
 
     tst.w   d1
     bpl     p32_first_byte
@@ -452,13 +479,11 @@ p32_plot_loop:
     lsl.l   d6,d4
 
 p32_first_byte:
-    ;first byte
 
     move.l  d4,d6 
     lsr.l   d3,d6 
     or.l    d6,(a0)
 
-    ;check if a second byte is needed
 
     tst.w   d3 
     beq     p32_next_row
@@ -469,7 +494,6 @@ p32_first_byte:
     cmpi.w  #19,d6
     bge     p32_next_row
 
-    ;second byte
 
     moveq   #32,d6
     sub.w   d3,d6
@@ -492,15 +516,27 @@ p32_done:
     unlk    a6
     rts 
 
-;plot_character
-;Input:
-;base = screen buffer address
-;row = starting row 
-;col = starting column 
-;ch = character being drawn
+/*----- Function: plot_character -----
+ *
+ * PURPOSE: Draws a single character on the screen
+ *          using a bitmap from the font table.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the character.
+ *        col - horizontal position of the character.
+ *        ch - character to draw.
+ *
+ * OUTPUT: Modifies the screen buffer to draw the bitmap, 
+ *         but thers no return value.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              The required character exists in the font table.
+ *              Font table contains ASCII 32 to 126, represented
+ *              by an 8x8 bitmap. Chars outside this range are ignored.
+ */
 
 _plot_character:
-    link    a6,#0
+    link    a6,#0, 
     movem.l d0-d7/a0-a2,-(sp)
 
     move.l  BM_BASE(a6),a0
@@ -509,14 +545,14 @@ _plot_character:
     clr.w   d0 
     move.b  17(a6),d0 
 
-    ;ASCII range
+    ;ASCII range check (32-126)
     cmpi.w  #32,d0 
     blo     pc_done 
 
     cmpi.w  #126,d0 
     bhi     pc_done
 
-    ;glyph offset
+    ;glyph offset (ASCII - 32 ) * 8
     subi.w  #32,d0
     lsl.w   #3,d0 
 
@@ -538,12 +574,24 @@ pc_done:
     unlk    a6 
     rts 
 
-;plot_string
-;Input:
-;base = screen buffer address
-;row  = starting row
-;col  = starting column
-;ch   = string address
+/*----- Function: plot_string -----
+ *
+ * PURPOSE: Draws a string of characters on the screen
+ *          using bitmaps from the font table.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the string.
+ *        col - horizontal starting position.
+ *        ch - pointer to the string to draw.
+ *
+ * OUTPUT: Modifies the screen buffer to draw the string,
+ *         but there is no return.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              The string is null-terminated.
+ *              Characters are represented by 8x8 bitmaps.
+ *              Required characters are printable ASCII (32-126).
+ */
 
 _plot_string:
     link a6,#0
@@ -564,7 +612,7 @@ ps_loop:
     tst.b   d2
     beq     ps_done
 
-    ;plot_character call, base,row,col,ch 
+    ;plot_character call, with arguments in reverse order
     move.w  d2,-(sp)
     move.w  d1,-(sp)
     move.w  d0,-(sp)
