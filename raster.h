@@ -1,194 +1,264 @@
+/*------------------------------------------------------------
+ * File: raster.h
+ *
+ * PURPOSE: Declares the raster graphics functions used
+ *          to draw shapes, bitmaps, and text on the
+ *          Atari ST monochrome screen.
+ *
+ * Team Members: Mohamad, Ujjwal, Matthew
+ * Author: Mohamad, Ujjwal
+ *------------------------------------------------------------*/
+
 #ifndef RASTER_H
 #define RASTER_H
 
+#include "types.h"
+
 /*----- Function: clear_screen -----
-v
- PURPOSE: Clears the entire screen.
-
- INPUT: Address(UINT32*): to the start of the screen
-
- OUTPUT: None
-
-*/
+ *
+ * PURPOSE: Clears the entire screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen buffer is valid.
+ */
 void clear_screen(UINT32 *base);
 
 
 /*----- Function: clear_region -----
-
- PURPOSE: Clear a region of the screen. The section is specified by the coordinates of the top left corner, and the height and width of the region.
-
- INPUT: Address(UINT32*): to the start of the screen
-        Position(row,col): the coordinates of the top left pixel of the region
-        Length: the lenth (number of rows) in pixels of the region
-        Width: the width (number of columns) in pixels of the region
-
- OUTPUT: None
-
-*/
+ *
+ * PURPOSE: Clears a rectangular region of the screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row, col - top-left pixel of the region.
+ *        length - number of rows to clear.
+ *        width - number of columns to clear.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen buffer is valid.
+ */
 void clear_region(UINT32 *base, int row, int col, UINT16 length, UINT16 width);
 
 
 /*----- Function: plot_pixel -----
-
- PURPOSE: Plots a single pixel on the screen.
-
- INPUT: Address(UINT8*): to the start of the screen
-        Position(row,col): the location of the pixel to plot
-
- OUTPUT: None
-
-*/
+ *
+ * PURPOSE: Draws a single pixel on the screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the pixel.
+ *        col - horizontal position of the pixel.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ */
 void plot_pixel(UINT8 *base, int row, int col);
 
 
 /*----- Function: plot_horizontal_line -----
-
- PURPOSE: Plot a hoizontal line on the screen. The horizontal line is specified by the leftmost pixel of the line and the length of the line.
-
- INPUT: Address(UINT32*): to the start of the screen
-        Position(row,col): the coordinates of the leftmost pixel of the horizontal line
-        Length: the lenth in pixels of the line
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws a horizontal line starting at the
+ *          specified screen position.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the line.
+ *        col - starting horizontal position.
+ *        length - number of pixels in the line.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ */
 void plot_horizontal_line(UINT32 *base, int row, int col, UINT16 length);
 
 
 /*----- Function: plot_vertical_line -----
-
- PURPOSE: Plot a hoizontal line on the screen. The vertical line is specified by the topmost pixel of the line and the length of the line.
-
- INPUT: Address(UINT32*): to the start of the screen
-        Position(row,col): the coordinates of the topmost pixel of the vertical line
-        Length: the lenth in pixels of the line
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws a vertical line starting at the
+ *          specified screen position.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - starting vertical position.
+ *        col - horizontal position of the line.
+ *        length - number of pixels in the line.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ */
 void plot_vertical_line(UINT32 *base, int row, int col, UINT16 length);
 
 
 /*----- Function: plot_line -----
-
- PURPOSE: Plots a line on the screen between the two given points.
-
- INPUT: Address(UINT32*): to the start of the screen
-        Position(start_row,start_col): the coordinates of the start of the line
-        Position(end_row,end_col): the coordinates of the end of the line
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws a line between two specified points
+ *          on the screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        start_row - vertical position of the first point.
+ *        start_col - horizontal position of the first point.
+ *        end_row - vertical position of the second point.
+ *        end_col - horizontal position of the second point.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ */
 void plot_line(UINT32 *base, int start_row, int start_col, int end_row, int end_col);
 
 
 /*----- Function: plot_rectangle -----
-
- PURPOSE: Plots a rectangle on the screen given by the top left pixel, and the length and width of the rectangle.
-
- INPUT: Address(UINT32*): to the start of the screen
-        Position(row,col): the coordinates of the top left pixel of the rectangle
-        Length: the lenth (number of rows) in pixels of the rectangle
-        Width: the width (number of columns) in pixels of the rectangle
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws the outline of a rectangle on the screen
+ *          using the specified position and dimensions.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the top-left corner.
+ *        col - horizontal position of the top-left corner.
+ *        length - height of the rectangle in pixels.
+ *        width - width of the rectangle in pixels.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ */
 void plot_rectangle(UINT32 *base, int row, int col, UINT16 length, UINT16 width);
 
 
 /*----- Function: plot_square -----
-
- PURPOSE: Plots a square on the screen given by the top left pixel, and the length of the sides of the square.
-
- INPUT: Address(UINT32*): to the start of the screen
-        Position(row,col): the coordinates of the top left pixel of the square
-        Side: the lenth of each side, in pixels, of the square
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws the outline of a square on the screen
+ *          using the specified position and side length.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the top-left corner.
+ *        col - horizontal position of the top-left corner.
+ *        side - length of each side in pixels.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ */
 void plot_square(UINT32 *base, int row, int col, UINT16 side);
 
 
 /*----- Function: plot_triangle -----
-
- PURPOSE: Plots a triangle on the screen given by the coordinate of the 90° angle, the length of the base, the length of the height, and the direction of the triangle.
-
- INPUT: Address(UINT32*): to the start of the screen
-        Position(row,col): the coordinates of the pixel of the 90° angle of the triangle
-        Base: the length (number of columns) of the base in pixels of the triangle
-        Height: the lenth (number of rows) of the height in pixels of the triangle
-        Direction: Describes where the coordinate is relative to the rest of the triangle
-              0 - Coordinate is the top left point of the triangle
-              1 - Coordinate is the top right point of the triangle
-              2 - Coordinate is the bottom left point of the triangle
-              3 - Coordinate is the bottom right point of the triangle
-
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws the outline of a right triangle using
+ *          the specified position, dimensions, and direction.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the right-angle corner.
+ *        col - horizontal position of the right-angle corner.
+ *        triangle_base - width of the triangle in pixels.
+ *        height - height of the triangle in pixels.
+ *        direction - location of the right-angle corner:
+ *                    0 = top-left
+ *                    1 = top-right
+ *                    2 = bottom-left
+ *                    3 = bottom-right
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ */
 void plot_triangle(UINT32 *base, int row, int col, UINT16 triangle_base, UINT16 height, UINT8 direction);
 
 
 /*----- Function: plot_8bit_bitmap -----
-
- PURPOSE: Plots a bitmap to the screen given by the top left pixel of the bitmap and the height of bitmap.
-
- INPUT: Address(UINT8*): to the start of the screen
-        Position(row,col): the coordinates of the top left pixel of the bitmap
-        Height: the lenth (number of rows) of the height in pixels of the bitmap
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws an 8-pixel-wide bitmap onto the
+ *          Atari ST monochrome screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the bitmap.
+ *        col - horizontal position of the bitmap.
+ *        bitmap - pointer to the bitmap pixel data.
+ *        height - number of rows in the bitmap.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              Each bitmap row contains 8 pixels.
+ */
 void plot_8bit_bitmap(UINT8 *base, int row, int col, const UINT8 *bitmap, UINT16 height);
 
 
 /*----- Function: plot_16bit_bitmap -----
-
- PURPOSE: Plots a bitmap to the screen given by the top left pixel of the bitmap and the height of bitmap.
-
- INPUT: Address(UINT16*): to the start of the screen
-        Position(row,col): the coordinates of the top left pixel of the bitmap
-        Height: the lenth (number of rows) of the height in pixels of the bitmap
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws a 16-pixel-wide bitmap onto the
+ *          Atari ST monochrome screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the bitmap.
+ *        col - horizontal position of the bitmap.
+ *        bitmap - pointer to the bitmap pixel data.
+ *        height - number of rows in the bitmap.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              Each bitmap row contains 16 pixels.
+ */
 void plot_16bit_bitmap(UINT16 *base, int row, int col, const UINT16 *bitmap, UINT16 height);
 
 
 /*----- Function: plot_32bit_bitmap -----
-
- PURPOSE: Plots a bitmap to the screen given by the top left pixel of the bitmap and the height of bitmap.
-
- INPUT: Address(UINT32*): to the start of the screen
-        Position(row,col): the coordinates of the top left pixel of the bitmap
-        Height: the lenth (number of rows) of the height in pixels of the bitmap
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws a 32-pixel-wide bitmap onto the
+ *          Atari ST monochrome screen.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the bitmap.
+ *        col - horizontal position of the bitmap.
+ *        bitmap - pointer to the bitmap pixel data.
+ *        height - number of rows in the bitmap.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              Each bitmap row contains 32 pixels.
+ */
 void plot_32bit_bitmap(UINT32 *base, int row, int col, const UINT32 *bitmap, UINT16 height);
 
 
 /*----- Function: plot_character -----
-
- PURPOSE: Plots a single character, as a bitmap from a font table, to the screen.
-
- INPUT: Address(UINT8*): to the start of the screen
-        Position(row,col): the coordinates of the top left pixel of the character
-        ch(char): the character to be written to the screen
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws a single character on the screen
+ *          using a bitmap from the font table.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the character.
+ *        col - horizontal position of the character.
+ *        ch - character to draw.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              The required character exists in the font table.
+ */
 void plot_character(UINT8 *base, int row, int col, char ch);
 
 
 /*----- Function: plot_string -----
-
- PURPOSE: Plots a string, as a sequence of bitmaps from a font table, to the screen.
-
- INPUT: Address(UINT8*): to the start of the screen
-        Position(row,col): the coordinates of the top left pixel of the string
-        ch(c-string): the string to be written to the screen
-
- OUTPUT: None
-*/
+ *
+ * PURPOSE: Draws a string of characters on the screen
+ *          using bitmaps from the font table.
+ *
+ * INPUT: base - pointer to the screen buffer.
+ *        row - vertical position of the string.
+ *        col - horizontal starting position.
+ *        ch - pointer to the string to draw.
+ *
+ * OUTPUT: None.
+ *
+ * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
+ *              The string is null-terminated.
+ *              Required characters exist in the font table.
+ */
 void plot_string(UINT8 *base, int row, int col, char *ch);
 
 #endif
