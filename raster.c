@@ -1,4 +1,5 @@
 #include "raster.h"
+#include "font.h"
 
 /* Atari ST high-resolution monochrome: 640 x 400, 80 bytes per row. */
 #define SCREEN_ROWS 400
@@ -260,6 +261,33 @@ void plot_32bit_bitmap(UINT32 *base, int row, int col,
             *(base + offset  + 1) |= bits << (32 - startingBit);
         }
         offset += 20;
+    }
+}
+
+void plot_character(UINT8 *base, int row, int col, char ch)
+{
+    const UINT8 *glyph;
+    UINT8 ascii = (UINT8)ch;
+
+    if (ascii < 32 || ascii > 126){
+        return;
+    }
+
+    glyph = font + ((ascii - 32) << 3);
+
+    plot_8bit_bitmap(base, row, col, glyph, 8);
+
+}
+
+
+void plot_string(UINT8 *base, int row, int col, char *ch)
+{
+    int i = 0;
+    while (ch[i] != '\0')
+    {
+        plot_character(base, row, col, ch[i]);
+        col +=8;
+        i++;
     }
 }
 #include "raster.h"
