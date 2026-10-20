@@ -389,9 +389,9 @@ p16_done:
     rts 
 
 
-/*----- Function: plot_8bit_bitmap -----
+/*----- Function: plot_32bit_bitmap -----
  *
- * PURPOSE: Draws an 8-pixel-wide bitmap onto the
+ * PURPOSE: Draws an 32-pixel-wide bitmap onto the
  *          Atari ST monochrome screen.
  *
  * INPUT: base - pointer to the screen buffer.
@@ -403,7 +403,7 @@ p16_done:
  * OUTPUT: Modifies the screen buffer to draw the bitmap, 
  *         but thers no return value.
  * ASSUMPTIONS: The screen uses 640x400 monochrome mode.
- *              Each bitmap row contains 8 pixels.
+ *              Each bitmap row contains 32 pixels.
  *              Contains atleast height rows.
  */
 
