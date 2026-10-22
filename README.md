@@ -1,6 +1,5 @@
 # TileZ
 
-COMP 2659, Mount Royal University, Fall 2026. A tile puzzle game for the Atari ST (640x400 monochrome).
 
 ## Authors
 
